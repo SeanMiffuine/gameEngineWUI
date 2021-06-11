@@ -17,21 +17,12 @@ bool loop;
 
 void dialogueLoop()
 {
-	loop = true;
 	HANDLE hDialogue = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 	SetConsoleActiveScreenBuffer(hDialogue);
 	DWORD dwBytesWritten = 0;
 
 	WriteConsoleOutputCharacter(hDialogue, dialogueScreen, screenW * screenH, { 0,0 }, &dwBytesWritten);
 
-	while (loop)
-	{
-		primer();
-		test();
-		
-
-		
-	}
 }
 
 
