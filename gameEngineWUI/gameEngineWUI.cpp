@@ -8,18 +8,17 @@
 
 extern const int screenW = 120;
 extern const int screenH = 30;
-extern wchar_t *screen = new wchar_t[screenW*screenH];
+//extern wchar_t *screen = new wchar_t[screenW*screenH];
 
 int main()
 {
-
+	wuiEngine game;
 	
 	while (1)
 	{
 		
-		
-
-		dialogueLoop();
+		game.dialogue();
+		dialogueLoop(game);
 		
 
 	}
