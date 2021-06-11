@@ -6,24 +6,21 @@
 #include <string>
 #include "functions.h"
 
-
-
+extern const int screenW = 120;
+extern const int screenH = 30;
+extern wchar_t *screen = new wchar_t[screenW*screenH];
 
 int main()
 {
-	
 
-	//screenbuffer
 	
-	
-	SetConsoleActiveScreenBuffer(hConsole);
-	
-
 	while (1)
 	{
-		test();
-		//finsh all render/draw
-		WriteConsoleOutputCharacter(hConsole, screen, screenW * screenH, { 0,0 }, &dwBytesWritten);
+		
+		
+
+		dialogueLoop();
+		
 
 	}
 
