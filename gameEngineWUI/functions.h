@@ -3,14 +3,6 @@
 #include <Windows.h>
 //just add intro to function
 
-
-void test();
-void primer();
-void dialogueLoop();
-extern const int screenW;
-extern const int screenH;
-extern wchar_t *screen;
-
 /* 
 class wuiEngine
 {
