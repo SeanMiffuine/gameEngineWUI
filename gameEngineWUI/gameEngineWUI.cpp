@@ -1,6 +1,5 @@
 // ConsoleApplication1.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
-
 #include <iostream>
 #include <Windows.h>
 #include <string>
@@ -15,9 +14,6 @@ const int screenH = 30;
 extern wchar_t *screen = new wchar_t[screenW*screenH];
 extern wchar_t *dialogueScreen = new wchar_t[screenW*screenH];
 
-const wchar_t msg[] = L"abcdefg";
-const wchar_t msga[] = L"bobby was his name o look its a bird no its not yes it is constitutionally.";
-
 int scene;
 int textProgress;
 int size;
@@ -30,11 +26,13 @@ static int rowPos = 3; // text row 4 - 26
 -type speeds xxx
 -wait for input to next line (++ to textProgress), enter to next line?  xxx
 -putting sentences at line numbers (every 3n*120?) xxx
--UI ascii
--type sounds?
--select menu?
--ascii filled in and out like cursor
+-UI ascii xxx
+
+-dialogue system tempaltes
+-select menu
+-ascii filled in and out like cursor???
 -choices
+-sound FX, music etc. 
 */
 
 
@@ -45,16 +43,13 @@ public:
 	int lowB = (3 * 120 + 10);
 	int highB = (3 * 120 + 80);
 	int tempPos;
-	
+
+	HANDLE hDialogue = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
+	DWORD dwBytesWritten = 0;
 
 	void talk(std::wstring msg, int speedC) // regular talkspeed
 	{
-		
-		HANDLE hDialogue = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 		SetConsoleActiveScreenBuffer(hDialogue);
-		DWORD dwBytesWritten = 0;
-		
-
 		switch (speedC)
 		{
 		case 1: // slow
@@ -71,23 +66,9 @@ public:
 			break;
 		}
 
-		for (int i = 0; i <= msg.length(); i++) // !!! need primer() for when full
+		for (int i = 0; i <= msg.length(); i++) // need primer() for when full !!!
 		{
-			if (textPos > 81)// we want dialogue to be from 10 ~ 80?
-			{
-				textPos = 9;
-				rowPos++;
-			}
-			if (rowPos > 26)// rows 4 - 26
-			{
-				rowPos = 3;
-			}
-			tempPos = rowPos * 120 + textPos;
-			dialogueScreen[(tempPos)] = msg[i]; //textPos is position of text going to be written.
-			textPos++;
-			
-			//check for skip text
-			if((GetAsyncKeyState(VK_RETURN) < 0) != skip)
+			if ((GetAsyncKeyState(VK_RETURN) < 0) != skip)
 			{
 				while (GetAsyncKeyState(VK_RETURN) < 0)
 				{
@@ -113,6 +94,22 @@ public:
 				std::this_thread::sleep_for(std::chrono::microseconds(100));
 				return;
 			}
+
+			if (textPos > 81)// we want dialogue to be from 10 ~ 80?
+			{
+				textPos = 9;
+				rowPos++;
+			}
+			if (rowPos > 26)// rows 4 - 26
+			{
+				rowPos = 3;
+			}
+			tempPos = rowPos * 120 + textPos;
+			dialogueScreen[(tempPos)] = msg[i]; //textPos is position of text going to be written.
+			textPos++;
+			
+			//check for skip text
+			
 			std::this_thread::sleep_for(std::chrono::microseconds(speed));
 			WriteConsoleOutputCharacter(hDialogue, dialogueScreen, screenW * screenH, { 0,0 }, &dwBytesWritten);
 		}	
@@ -150,11 +147,19 @@ public:
 		}
 
 		// right side UI
-		for (int x = 120 + 88; x <= 120 + 113; x++)
+		for (int x = 120 + 88; x <= 120 + 113; x++) //row
 		{
 			dialogueScreen[x] = 0x2593;
 		}
-		for (int x = 120 * 28 + 88; x <= 120 * 28 + 113; x++)
+		for (int x = 120 * 2 + 87; x <= 120 * 28 + 86; x += 120) // col
+		{
+			dialogueScreen[x] = 0x2593;
+		}
+		for (int x = 120 * 28 + 88; x <= 120 * 28 + 113; x++) //row 
+		{
+			dialogueScreen[x] = 0x2593;
+		}
+		for (int x = 120 * 2 + 114; x <= 120 * 28 + 113; x += 120) //col
 		{
 			dialogueScreen[x] = 0x2593;
 		}
@@ -174,6 +179,11 @@ public:
 			break;
 
 		}
+	}
+
+	void pause()
+	{
+		// repaste written code for enter.
 	}
 };
 
@@ -198,25 +208,24 @@ int main()
 	scene1.primer();
 	scene1.ui();
 	while (1)
-	{
+	{ //main game loop
 		
-		if (scene == 1)	//main dialogue <=== HERE START
+		while (scene == 1)	//main dialogue <=== HERE START
 		{
 			scene1.talk(scene1.textProgressor(textProgress), slow);
 			// waiting for input
 			// next line
-
+			scene1.pause();
 			textProgress = 2;
-			
 			WriteConsoleOutputCharacter(hDialogue, dialogueScreen, screenW * screenH, { 0,0 }, &dwBytesWritten);
 		}
 		//inventory
-		else if (scene == 2)
+		while (scene == 2)
 		{
 
 		} 
 		// map
-		else if (scene == 3)
+		while (scene == 3)
 		{
 
 		}

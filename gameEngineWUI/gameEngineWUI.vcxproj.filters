@@ -18,7 +18,7 @@
     <ClCompile Include="gameEngineWUI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dialogue.cpp">
+    <ClCompile Include="mainStoryDialogue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

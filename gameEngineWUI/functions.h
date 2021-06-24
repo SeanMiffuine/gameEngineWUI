@@ -1,7 +1,12 @@
 #pragma once
 #include <iostream>
 #include <Windows.h>
-//just add intro to function
+
+//add function type, name, and inputs
+// as well include ".h" in both function file to call from and main file (using);
+
+extern const wchar_t msg[];
+extern const wchar_t msga[];
 
 /* 
 class wuiEngine
