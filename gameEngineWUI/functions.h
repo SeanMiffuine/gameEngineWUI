@@ -1,13 +1,26 @@
 #pragma once
-
+#include <iostream>
 #include <Windows.h>
-//just add intro to function
-extern wchar_t *screen;
 
-void test();
-void primer();
-extern const int screenW;
-extern const int screenH;
+//add function type, name, and inputs
+// as well include ".h" in both function file to call from and main file (using);
 
-HANDLE hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
-DWORD dwBytesWritten = 0;
+extern const wchar_t msg[];
+extern const wchar_t msga[];
+
+/* 
+class wuiEngine
+{
+public:
+	wuiEngine()
+	{
+		
+
+		HANDLE hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
+		SetConsoleActiveScreenBuffer(hConsole);
+		DWORD dwBytesWritten = 0;
+		WriteConsoleOutputCharacter(hConsole, screen, screenW * screenH, { 0,0 }, &dwBytesWritten);
+	}
+	
+};
+*/
