@@ -8,6 +8,16 @@
 extern const wchar_t msg[];
 extern const wchar_t msga[];
 
+extern const wchar_t one[];
+extern const wchar_t two[];
+extern const wchar_t three[];
+
+extern const wchar_t select1[];
+extern const wchar_t select2[];
+extern const wchar_t select3[];
+extern const wchar_t select4[];
+
+
 /* 
 class wuiEngine
 {
