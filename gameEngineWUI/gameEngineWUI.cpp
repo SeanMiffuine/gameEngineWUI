@@ -20,7 +20,6 @@ extern wchar_t *dialogueScreen = new wchar_t[screenW*screenH];
 std::vector<std::wstring> allChoices = { select1, select2, select3, select4};
 // not to be confused with temp choice; this is list of all possible choices; 
 
-
 int scene;
 int textProgress;
 int size;
@@ -37,13 +36,12 @@ static int rowPos = 3; // text row 4 - 26
 
 -starting and ending menu
 -dialogue system tempaltes
--select menu
--ascii filled in and out like cursor???
--choices
+-select menu xxx
+-ascii filled in and out like cursor??? 
+-choice xxx
 -sound FX, music etc. 
 -starting and ending menu
 */
-
 
 //thoughts
 /*
@@ -84,13 +82,9 @@ public:
 
 		for (int i = 0; i <= msg.length(); i++) // need primer() for when full !!!
 		{
-			if ((GetAsyncKeyState(VK_RETURN) < 0) != skip) // prevent hold down craziness
+			if (GetAsyncKeyState(VK_RETURN) & 0x0001) // prevent hold down craziness
 			{
-				while (GetAsyncKeyState(VK_RETURN) < 0) // buffer, cant keep going until let key up
-				{
-					WriteConsoleOutputCharacter(hDialogue, dialogueScreen, screenW * screenH, { 0,0 }, &dwBytesWritten);
-				}
-				//skip = !skip;
+				
 				for (int j = i; j <= msg.length(); j++) // !!! need primer() for when full 
 				{
 					if (textPos > 81)// we want dialogue to be from 10 ~ 80?
@@ -259,6 +253,8 @@ public:
 			{
 				if (choiceState < 6)
 				{
+					xPos = 120 * (20 + choiceState) + 89;
+					dialogueScreen[xPos] = ' ';
 					choiceState++;
 				}
 			}
@@ -268,6 +264,8 @@ public:
 			{
 				if (choiceState > 0)
 				{
+					xPos = 120 * (20 + choiceState) + 89;
+					dialogueScreen[xPos] = ' ';
 					choiceState--;
 				}
 			}
@@ -275,25 +273,21 @@ public:
 
 			xPos = 120 * (20 + choiceState) + 89;
 			dialogueScreen[xPos] = 'x';
-
-			if ((GetAsyncKeyState(VK_RETURN) < 0) != false) // prevent hold down craziness
-			{
-				while (GetAsyncKeyState(VK_RETURN) < 0) // buffer, cant keep going until let key up
-				{
-					//test
-					primer();
-					while (1)
-					{
-						WriteConsoleOutputCharacter(hDialogue, dialogueScreen, screenW * screenH, { 0,0 }, &dwBytesWritten);
-					}
-					
+			
+			if ((GetAsyncKeyState(VK_RETURN) & 0x0001) && (choiceState != 0)) { // prevent hold down craziness 
+				//test
+				primer();
+				while (1) {
+				
+					dialogueScreen[xPos] = 'x';
+					WriteConsoleOutputCharacter(hDialogue, dialogueScreen, screenW * screenH, { 0,0 }, &dwBytesWritten);
 				}
-
 				//maybe while(input! = enter), exit. grab the current choice and use.
 			}
-
 			//render scene
 			WriteConsoleOutputCharacter(hDialogue, dialogueScreen, screenW * screenH, { 0,0 }, &dwBytesWritten);
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
 		}
 
 	}
@@ -314,30 +308,27 @@ public:
 		int reg = 2;
 		int fast = 3;
 
-		dialogueScene scene1;
+		dialogueScene dialogueScene;
 #pragma endregion
 
-		scene1.primer();
-		scene1.ui();
+		dialogueScene.primer();
+		dialogueScene.ui();
 		while (1)
 		{ //main game loop
 
-			while (scene == 1)	//main dialogue <=== HERE START
+			while (scene == 1)	// main dialogue
 			{
-				scene1.talk(scene1.textProgressor(textProgress), fast);
-				// waiting for input
-				// next line
-				//scene1.pause();
-
+				dialogueScene.talk(dialogueScene.textProgressor(textProgress), slow);
 				//tempchoice must have 7 choices; 
 				int tempChoice[7] = { 0, 1, 2, 2, 2, 2, 2}; //where we pick from allChoices;
-				scene1.choice(tempChoice);
+				dialogueScene.choice(tempChoice);
 				textProgress = 2;
 				WriteConsoleOutputCharacter(hDialogue, dialogueScreen, screenW * screenH, { 0,0 }, &dwBytesWritten);
 			}
 			//inventory
 			while (scene == 2)
 			{
+				//inventory scene with own class system. however, still implement WriteConsoleOutput.?
 
 			}
 			// map
