@@ -254,7 +254,8 @@ public:
 			
 
 			//up func
-			if (GetAsyncKeyState((unsigned short)'S') & 0x8000)
+		
+			if (GetAsyncKeyState((unsigned short)'S') & 0x0001)
 			{
 				if (choiceState < 6)
 				{
@@ -263,7 +264,7 @@ public:
 			}
 
 			//down func
-			if (GetAsyncKeyState((unsigned short)'W') & 0x8000)
+			if (GetAsyncKeyState((unsigned short)'W') & 0x0001)
 			{
 				if (choiceState > 0)
 				{
