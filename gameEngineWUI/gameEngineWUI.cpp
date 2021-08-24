@@ -9,12 +9,10 @@
 #include <vector>
 #include "functions.h"
 
-
-const int screenW = 120;
-const int screenH = 30;
-
+int screenW = 120;
+int screenH = 80; 
 extern wchar_t *screen = new wchar_t[screenW*screenH];
-extern wchar_t *dialogueScreen = new wchar_t[screenW*screenH];
+extern wchar_t *dialogueScreen = new wchar_t[screenW*screenH]; //maybe just one file?
 
 //indexes of vector correspond to each choice. e.g. int[] = {1, 2, 3, 7, 10} <- select1, select2, etc.
 std::vector<std::wstring> allChoices = { select1, select2, select3, select4};
@@ -24,6 +22,8 @@ int scene;
 int textProgress;
 int size;
 static bool skip = false;
+bool screenMain = true;
+bool newLoad = true;
 static int textPos = 9; //text left right 10 - 80
 static int rowPos = 3; // text row 4 - 26
 
@@ -50,13 +50,104 @@ static int rowPos = 3; // text row 4 - 26
 	choices menu is seperate, pauses dialogue.  "third person dialogue", contextual clues
 */
 
-class dialogueScene {
+class Item {
+private:
+	std::wstring name;
+	std::wstring description;
+	std::wstring image;
+	bool equipable;
+	bool combinable;
+	int combinedItems; // index for set of items needed for combination
+
+public:
+	Item(std::wstring n, std::wstring desc, std::wstring img, bool eq, bool comb, int combItems) {
+		name = n;
+		description = desc;
+		image = img;
+		equipable = eq;
+		combinable = comb;
+		combinedItems = combItems;
+	}
+
+	bool combine(Item* item) {
+		if (combinedItems == item->combinedItems) {
+			return true;
+		}
+		return false;
+	}
+
+	std::wstring getName() {
+		return name;
+	}
+
+	std::wstring getDescription() {
+		return description;
+	}
+
+	std::wstring getImage() {
+		return image;
+	}
+
+	bool getEquipable() {
+		return equipable;
+	}
+
+	bool getCombinable() {
+		return combinable;
+	}
+
+	int getCombineNumber() {
+		return combinedItems;
+	}
+};
+
+class Inventory {
+private:
+	//Item* equipped;
+	std::vector<Item*> allItems;
+	std::vector<Item*> inven;
+
+public:
+
+	void addItem(Item* i) {
+		inven.push_back(i);
+	}
+
+	void equip(int i) { // int i is index of item
+		//equipped = inven.at(i);
+	}
+
+	void use(int i) {
+		//some sort of functions on player !!!
+		removeItem(i);
+	}
+
+	void removeItem(int i) {
+		inven.erase(inven.begin() + i);
+	}
+
+	void clearAll() {
+		inven.clear();
+	}
+
+	std::vector<Item*> getItems() {
+		return inven;
+	}
+
+};
+
+
+
+class Scene {
 public:
 
 	int speed;
 	int lowB = (3 * 120 + 10);
 	int highB = (3 * 120 + 80);
 	int tempPos;
+
+	Inventory inventory;
+
 
 	HANDLE hDialogue = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 	DWORD dwBytesWritten = 0;
@@ -94,6 +185,7 @@ public:
 					}
 					if (rowPos > 26)// rows 4 - 26
 					{
+						// possible primer() here?
 						rowPos = 3;
 					}
 					tempPos = rowPos * 120 + textPos;
@@ -129,9 +221,10 @@ public:
 	void primer()
 	{
 		std::fill_n(dialogueScreen, (screenW * screenH), ' ');
+		WriteConsoleOutputCharacter(hDialogue, dialogueScreen, screenW * screenH, { 0,0 }, &dwBytesWritten);
 	}
 
-	//sets up ui
+	//sets up ui and personal info
 	void ui()
 	{
 		//starting from row 3 to row 27, col 10 - 80
@@ -177,8 +270,7 @@ public:
 		{
 			dialogueScreen[x] = 0x2593;
 		}
-
-
+		WriteConsoleOutputCharacter(hDialogue, dialogueScreen, screenW * screenH, { 0,0 }, &dwBytesWritten);
 	}
 
 	std::wstring textProgressor(int progress) // for dialogue.cpp
@@ -275,13 +367,23 @@ public:
 			dialogueScreen[xPos] = 'x';
 			
 			if ((GetAsyncKeyState(VK_RETURN) & 0x0001) && (choiceState != 0)) { // prevent hold down craziness 
-				//test
-				primer();
+				// INPUT CHOICE RIGHT HERE 
+
+				//FILLER; implement choices !!!
+
+
+				//primer();
+				screenMain = false;
+				isInput = true;
+				newLoad = true;
+
+				/*
 				while (1) {
 				
 					dialogueScreen[xPos] = 'x';
 					WriteConsoleOutputCharacter(hDialogue, dialogueScreen, screenW * screenH, { 0,0 }, &dwBytesWritten);
 				}
+				*/
 				//maybe while(input! = enter), exit. grab the current choice and use.
 			}
 			//render scene
@@ -291,8 +393,46 @@ public:
 		}
 
 	}
+
+	//inventory scene methods
+	void showItems() {
+		std::vector<Item*> inven = inventory.getItems();
+		for (Item* item : inven) {
+			printItem(item);
+		}
+
+	}
+
+	void printItem(Item* item) {
+		std::wstring name = item->getName();
+		std::wstring description = item->getDescription();
+		std::wstring image = item->getImage();
+
+		for (int i = 0; i <= name.length(); i++) // need primer() for when full !!!
+		{
+			if (textPos > 81)// we want dialogue to be from 10 ~ 80?
+			{
+				textPos = 9;
+				rowPos++;
+			}
+			if (rowPos > 26)// rows 4 - 26
+			{
+				rowPos = 3;
+			}
+			tempPos = rowPos * 120 + textPos;
+			dialogueScreen[(tempPos)] = msg[i]; //textPos is position of text going to be written.
+			textPos++;
+		}
+		WriteConsoleOutputCharacter(hDialogue, dialogueScreen, screenW * screenH, { 0,0 }, &dwBytesWritten);
+	}
+
+	void itemChoice() {
+		//choices for items. left / right goes from item select to function select. up down goes from item scrolling or function selecting.
+	}
 };
 
+
+// MAIN MAIN MAIN
 	int main()
 	{
 #pragma region variables and stuff in main 
@@ -300,43 +440,53 @@ public:
 		SetConsoleActiveScreenBuffer(hDialogue);
 		DWORD dwBytesWritten = 0;
 
-		int scene = 1;
-		int textProgress = 1;
-
 		//talk speeds prefab
 		int slow = 1;
 		int reg = 2;
 		int fast = 3;
 
-		dialogueScene dialogueScene;
+		int textProgress = 1;
+		
+
+		Scene dialogueScene;
+		
+		Item* key = new Item(L"Key", L"just a cup", L"xx xxx xx", true, false, 1);
+
+
 #pragma endregion
 
-		dialogueScene.primer();
-		dialogueScene.ui();
+
 		while (1)
 		{ //main game loop
 
-			while (scene == 1)	// main dialogue
+			if (screenMain)	// main dialogue
 			{
+				if (newLoad) {
+					dialogueScene.primer();
+					dialogueScene.ui();
+					newLoad = false;
+				}
 				dialogueScene.talk(dialogueScene.textProgressor(textProgress), slow);
 				//tempchoice must have 7 choices; 
 				int tempChoice[7] = { 0, 1, 2, 2, 2, 2, 2}; //where we pick from allChoices;
-				dialogueScene.choice(tempChoice);
+				dialogueScene.choice(tempChoice); // all the choices passed through
 				textProgress = 2;
-				WriteConsoleOutputCharacter(hDialogue, dialogueScreen, screenW * screenH, { 0,0 }, &dwBytesWritten);
+				
 			}
 			//inventory
-			while (scene == 2)
+			if (!screenMain)
 			{
+				if (newLoad) {
+					dialogueScene.primer();
+					dialogueScene.ui();
+					newLoad = false;
+				}
+				dialogueScene.showItems();
+				//instead of having inventoryscreen n dialogue screen, have each seperate copy onto screen each tiem you switch??? !!!
 				//inventory scene with own class system. however, still implement WriteConsoleOutput.?
-
-			}
-			// map
-			while (scene == 3)
-			{
-
+				
 			}
 
-
+			WriteConsoleOutputCharacter(hDialogue, dialogueScreen, screenW * screenH, { 0,0 }, &dwBytesWritten);
 		}
 	}
