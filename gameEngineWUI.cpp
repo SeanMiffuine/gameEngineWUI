@@ -217,7 +217,7 @@ public:
 		}
 	}
 
-	//set screen blank / prime
+	//set screen blank / prime CLEAR
 	void primer()
 	{
 		std::fill_n(dialogueScreen, (screenW * screenH), ' ');
