@@ -38,15 +38,18 @@ private:
 class event {
 public:
 
-    event(); 
-    event(std::vector<event> choices, std::vector<std::pair<std::wstring, int>> text, bool isCutscene, std::wstring name); // constructor
+    event(); //blank event
+    event(bool cutscene, std::wstring name);        // constructor
+    void setText(std::wstring text, int speed);     // sets text and speed it types 
+    void setNextEvents(event * next);               // sets next events per choice
 
 private:
 
     std::wstring eventName;                         // name of current event
     bool isCutscene;                                // 1 for cutscene event, 0 for choice event
-    std::vector<event> choices;                     // event children for next event
-    std::vector<std::pair<std::wstring, int>> text; // <dialogue, speed> per event
+    std::vector<event*> nextEvents;                 // event children for next event
+    std::vector<std::pair<std::wstring, int>> dialogue;                 // dialogue text
+    //std::vector<int> speed;                         // speed per dialogue text, in tandem with <text>
 
 };
 

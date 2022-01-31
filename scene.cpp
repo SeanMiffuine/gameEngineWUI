@@ -5,7 +5,6 @@
 scene::scene() {
     sBuffer = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL); 
     screen = new wchar_t[screenW*screenH];
-
 }
 
 void scene::clear() {
@@ -135,10 +134,22 @@ std::wstring scene::textProgressor(int progress) {
 
 
 event::event() {
+	eventName = L"blank";
+	isCutscene = true;
+}
+
+event::event(bool cutscene, std::wstring name) {
+	eventName = name;
+	isCutscene = cutscene;
+}
+
+void event::setText(std::wstring text, int speed) {
+	dialogue.push_back(std::make_pair(text, speed));
+}
+
+void event::setNextEvents(event * next) {
 
 }
 
-event::event(std::vector<event> choices, std::vector<std::pair<std::wstring, int>> text, bool isCutscene, std::wstring name) {
 
-}
 
